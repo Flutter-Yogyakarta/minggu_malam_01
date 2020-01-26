@@ -1,0 +1,1 @@
+export 'movie_trend_list_page.dart';
