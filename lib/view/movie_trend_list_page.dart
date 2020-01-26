@@ -9,9 +9,15 @@ class MovieTrendListPage extends StatefulWidget {
 }
 
 class _MovieTrendListPageState extends State<MovieTrendListPage> {
+  MovieRepository movieRepository = MovieRepository.instace;
+
+  bool isLoading = true;
+  List<Movie> movies;
+
   @override
   void initState() {
     super.initState();
+    _fetchMovieLiest();
   }
 
   @override
@@ -21,24 +27,27 @@ class _MovieTrendListPageState extends State<MovieTrendListPage> {
         title: Text('Movie Trend'),
       ),
       body: Container(
-        child: FutureBuilder<MovieList>(
-          future: MovieRepository().fetchMovieTrend(),
-          builder: (context, movieListSnapshot) {
-            if (!movieListSnapshot.hasData) {
-              return LinearProgressIndicator();
-            }
-            return Container(
-              child: ListView.builder(
-                itemCount: movieListSnapshot.data.results.length,
-                itemBuilder: (context, index) {
-                  return  MovieCard(movie: movieListSnapshot.data.results[index],);
-                },
+        child: isLoading
+            ? LinearProgressIndicator()
+            : Container(
+                child: ListView.builder(
+                  itemCount: movies.length,
+                  itemBuilder: (context, index) {
+                    return MovieCard(
+                      movie: movies[index],
+                    );
+                  },
+                ),
               ),
-            );
-          },
-        ),
       ),
     );
   }
-}
 
+  _fetchMovieLiest() async {
+    var result = await movieRepository.fetchMovieTrend();
+    setState(() {
+      movies = result.results;
+      isLoading = false;
+    });
+  }
+}
